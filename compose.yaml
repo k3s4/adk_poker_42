@@ -1,0 +1,51 @@
+services:
+  # ADK APIサーバー（エージェント用）
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: poker-api-server
+    working_dir: /app/agents
+    command: uv run --directory /app adk api_server --host 0.0.0.0 --port 8000 agents
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Asia/Tokyo
+      - PYTHONPATH=/app
+    env_file:
+      - .env
+    volumes:
+      - ./pyproject.toml:/app/pyproject.toml:ro
+      - ./uv.lock:/app/uv.lock:ro
+      - ./agents:/app/agents
+      - ./poker:/app/poker:ro
+    networks:
+      - poker-network
+
+  # メインポーカーのエージェント専用モード
+  poker-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uv run python main.py --cli --agent-only --agents "beginner_agent:4" --max-hands 5 # Agent Onlyの設定を変更する際はここを修正
+    environment:
+      - AGENT_SERVER_URL=http://api-server:8000
+      - TZ=Asia/Tokyo
+      - PYTHONPATH=/app
+    volumes:
+      - .:/app
+      - ./logs:/app/logs
+      - ./results:/app/results
+      - ./db:/app/db
+    depends_on:
+      - api-server
+    networks:
+      - poker-network
+
+volumes:
+  uv-cache:
+
+networks:
+  poker-network:
+    driver: bridge
+
