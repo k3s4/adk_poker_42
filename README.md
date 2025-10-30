@@ -36,7 +36,7 @@ LLMプレイヤー対応のWebアプリ（Flet）/CLIのテキサスホールデ
 2. リポジトリのクローン
 
    ```bash
-   git clone https://github.com/gochipon/adk_poker_2025
+   git clone https://github.com/gochipon/adk_poker_42
    cd adk-poker
    ```
 
@@ -141,7 +141,7 @@ uv run python main.py --help
 ## LLMプレイヤー
 
 ### ADKを用いたエージェントの作成手順
-- エージェントの作成手順は[wiki](https://github.com/gochipon/adk_poker_2025/wiki)を参照してください
+- エージェントの作成手順は[wiki](https://github.com/gochipon/adk_poker_42/wiki)を参照してください
 
 
 ### JSON状態フォーマット

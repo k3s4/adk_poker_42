@@ -86,7 +86,7 @@ recent_hands = get_game_history(limit=10)
 ### ファイル構成
 
 ```
-adk_poker_2025/
+adk_poker_42/
 ├── db/
 │   └── game_history.sqlite3  # ゲーム履歴データベース（自動作成）
 ├── poker/
@@ -180,5 +180,5 @@ def get_table_type(my_id, opponent_ids):
 ---
 
 実装者: Claude (Sonnet 4.5)  
-プロジェクト: adk_poker_2025
+プロジェクト: adk_poker_42
 
