@@ -1,8 +1,9 @@
 from google.adk.agents import Agent, SequentialAgent
 from .preflop import preflop_strategy_agent
+from google.adk.models.lite_llm import LiteLlm
 
 # Define model constant
-MODEL_GPT_4O_MINI = "gpt-4o-mini"
+MODEL_GPT_4O_MINI = LiteLlm(model="gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
 # フェーズ抽出Agent - 入力ゲーム状態から現在のフェーズを抽出

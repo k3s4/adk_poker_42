@@ -4,10 +4,11 @@ Preflop Strategy Agent - プリフロップの戦略分析を3段階で順次実
 """
 
 from google.adk.agents import Agent, SequentialAgent
-from .tools import classify_hand, analyze_preflop_position_value, evaluate_preflop_action
+from google.adk.models.lite_llm import LiteLlm
+from .tools import classify_hand, evaluate_preflop_action
 
 # Define model constant
-MODEL_GPT_4O_MINI = "gpt-4o-mini"
+MODEL_GPT_4O_MINI = LiteLlm(model="gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
 # 1) ポジション確認
@@ -62,15 +63,31 @@ preflop_action_agent = Agent(
 前提:
 - 現在フェーズ: {current_phase}
 - {current_phase} が "preflop" 以外、または {position} が "SKIP" の場合は "SKIP" と出力
+- 前ステップで計算済みのハンド強さスコア: {hand_classification}
 
 タスク(プリフロップ時のみ実行):
-- analyze_preflop_position_value ツールでポジション調整済み強度を確認
+- 既に計算された {hand_classification} のスコア（0-6）を参照
 - evaluate_preflop_action ツールを使用し、先行アクションやポット状況を踏まえた推奨アクションを導出
 - アクションは fold / check / call / raise / all_in のいずれか
 
-出力: 推奨アクション・合計額・根拠を日本語で簡潔に要約したテキスト（もしくは SKIP）。""",
+出力: 推奨アクション・合計額・根拠を日本語で簡潔に要約したテキスト（もしくは SKIP）。
+
+出力形式:
+- ツール結果のJSONのみを厳密に出力（前後に説明文を付けない）
+- 必ず次のJSON形式で回答してください:
+{
+  "action": "fold|check|call|raise|all_in",
+  "amount": <数値>,
+  "reasoning": "あなたの決定の理由を簡潔に説明"
+}
+
+ルール:
+- "fold"と"check"の場合: amountは0にしてください
+- "call"の場合: コールに必要な正確な金額を指定してください
+- "raise"の場合: レイズ後の合計金額を指定してください
+- "all_in"の場合: あなたの残りチップ全額を指定してください
+""",
     tools=[
-        analyze_preflop_position_value,
         evaluate_preflop_action,
     ],
     output_key="preflop_strategy_analysis",
