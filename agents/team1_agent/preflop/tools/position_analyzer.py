@@ -21,7 +21,7 @@ def analyze_preflop_position_value(
         分析結果のdict
     """
     try:
-        hand_class = classify_hand(hole_cards)
+        hand_class = classify_hand(hole_cards, position)
         if "error" in hand_class:
             return hand_class
         
