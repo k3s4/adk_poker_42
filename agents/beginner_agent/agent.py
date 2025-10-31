@@ -1,8 +1,9 @@
 from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
 
 root_agent = Agent(
     name="beginner_poker_agent",
-    model="gpt-4o-mini",
+    model=LiteLlm(model="openai/gpt-4o-mini"),
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
 

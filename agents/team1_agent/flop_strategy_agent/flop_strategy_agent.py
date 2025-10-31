@@ -2,9 +2,8 @@
 
 from google.adk.agents import Agent
 from .tools.flop_tools import suggest_flop_action
-
-# Define model constant
-MODEL_GPT_4O_MINI = "gpt-4o-mini"
+from google.adk.models.lite_llm import LiteLlm
+MODEL_GPT_4O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
 flop_strategy_agent = Agent(

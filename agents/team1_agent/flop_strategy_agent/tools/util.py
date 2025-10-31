@@ -140,7 +140,7 @@ class Card:
         return f'{self.rank}{self.suit}'
 
     def __str__(self) -> str:
-        return f'{self.rank.name} OF {self.suit.name}S ({repr(self)})_repr__
+        return f'{self.rank.name} OF {self.suit.name}S ({repr(self)})'
 
 
 Card.UNKNOWN = Card(Rank.UNKNOWN, Suit.UNKNOWN)

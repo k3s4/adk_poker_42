@@ -1,9 +1,9 @@
 from google.adk.agents import Agent, SequentialAgent
 from .preflop import preflop_strategy_agent
 from .flop_strategy_agent import flop_strategy_agent
-
+from google.adk.models.lite_llm import LiteLlm
 # Define model constant
-MODEL_GPT_4O_MINI = "gpt-4o-mini"
+MODEL_GPT_4O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
 # フェーズ抽出Agent - 入力ゲーム状態から現在のフェーズを抽出
@@ -21,7 +21,7 @@ phase_extractor_agent = Agent(
 # JSON整形Agent - どちらの分析を使うかをフェーズで選択してJSON化
 json_formatter_agent = Agent(
     name="poker_json_formatter",
-    model="gemini-2.5-flash-lite",
+    model=AGENT_MODEL,
     description="フェーズに応じて分析結果を選択し、規定JSONに整形",
     instruction="""あなたは戦略分析結果を指定JSON形式に正確に変換します。
 

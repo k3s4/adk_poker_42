@@ -4,9 +4,9 @@ Preflop Strategy Agent - プリフロップの戦略分析に特化したエー�
 
 from google.adk.agents import Agent
 from .tools import classify_hand, analyze_preflop_position_value, evaluate_preflop_action
+from google.adk.models.lite_llm import LiteLlm
 
-# Define model constant
-MODEL_GPT_4O_MINI = "gpt-4o-mini"
+MODEL_GPT_4O_MINI = LiteLlm(model="openai/gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
 # プリフロップ専用 戦略分析Agent
