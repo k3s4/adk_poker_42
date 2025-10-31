@@ -67,10 +67,11 @@ preflop_action_agent = Agent(
 
 タスク(プリフロップ時のみ実行):
 - 既に計算された {hand_classification} のスコア（0-6）を参照
-- evaluate_preflop_action ツールを使用し、先行アクションやポット状況を踏まえた推奨アクションを導出
+- evaluate_preflop_action ツールを hand_classification 引数に {hand_classification} を渡して使用
+- 先行アクションやポット状況を踏まえた推奨アクションを導出
 - アクションは fold / check / call / raise / all_in のいずれか
 
-出力: 推奨アクション・合計額・根拠を日本語で簡潔に要約したテキスト（もしくは SKIP）。
+出力: 推奨アクション・合計額・根拠を日本語で詳細に説明したテキスト（もしくは SKIP）。
 
 出力形式:
 - ツール結果のJSONのみを厳密に出力（前後に説明文を付けない）
@@ -78,7 +79,7 @@ preflop_action_agent = Agent(
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
-  "reasoning": "あなたの決定の理由を簡潔に説明"
+  "reasoning": "あなたの決定の理由を説明"
 }
 
 ルール:

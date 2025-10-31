@@ -14,6 +14,7 @@ def evaluate_preflop_action(
     your_stack: int = 1000,
     to_call: int = 0,
     blind_size: int = 20,
+    hand_classification: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     プリフロップアクションの評価（ハンドレンジに基づく）
@@ -31,11 +32,27 @@ def evaluate_preflop_action(
         アクション提案を含む分析結果
     """
     try:
-        position_value = analyze_preflop_position_value(hole_cards, position)
-        if "error" in position_value:
-            return position_value
-        
-        adj_score = position_value["position_adjusted_score"]
+        # 既存の分類結果が与えられていればそれを利用し、再計算を避ける
+        if hand_classification is not None and isinstance(hand_classification, dict):
+            category_score = hand_classification.get("category_score", 0)
+            position_for_calc = hand_classification.get("position", position) or position
+
+            # ポジション係数（position_analyzer と同一ロジック）
+            position_multiplier = {
+                "UTG": 0.7,
+                "MP": 0.8,
+                "CO": 0.9,
+                "BTN": 1.0,
+                "SB": 0.85,
+                "BB": 1.1,
+            }
+            pos_mult = position_multiplier.get(position_for_calc, 0.9)
+            adj_score = round(category_score * pos_mult, 1)
+        else:
+            position_value = analyze_preflop_position_value(hole_cards, position)
+            if "error" in position_value:
+                return position_value
+            adj_score = position_value["position_adjusted_score"]
         
         # 先行アクション解析
         raise_count = 0
