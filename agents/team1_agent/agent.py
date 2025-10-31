@@ -1,5 +1,6 @@
 from google.adk.agents import Agent, SequentialAgent
 from .preflop import preflop_strategy_agent
+from .flop_strategy_agent import flop_strategy_agent
 from google.adk.models.lite_llm import LiteLlm
 
 # Define model constant
@@ -11,31 +12,11 @@ phase_extractor_agent = Agent(
     name="poker_phase_extractor",
     model=AGENT_MODEL,
     description="ゲーム状態テキストから現在フェーズ(preflop/flop/turn/river)を短く抽出",
-    instruction="""あなたは与えられたゲーム状態（JSON風テキスト）から現在のフェーズを1語で抽出します。
+    instruction='''あなたは与えられたゲーム状態（JSON風テキスト）から現在のフェーズを1語で抽出します。
 
 出力は次のいずれかの単語のみ: preflop / flop / turn / river
-余計な説明・記号や引用符は付けず、該当語のみをそのまま出力してください。""",
+余計な説明・記号や引用符は付けず、該当語のみをそのまま出力してください。''',
     output_key="current_phase",
-)
-
-# フロップ専用 戦略分析Agent（フロップ以降もここに集約）
-flop_strategy_agent = Agent(
-    name="poker_flop_strategy_analyzer",
-    model=AGENT_MODEL,
-    description="フロップ以降(フロップ/ターン/リバー)の戦略分析に特化したエージェント",
-    instruction="""あなたはテキサスホールデムのポストフロップ戦略に特化したアナリストです。
-
-前提:
-- 現在フェーズ: {current_phase}
-もし {current_phase} が "flop"/"turn"/"river" 以外（= preflop）であれば、分析は行わず "SKIP" とだけ出力
-
-タスク(フロップ/ターン/リバーの場合のみ実行):
-- ボードテクスチャ、レンジ相性、エクイティ/実現性、スタック/ポット比(SPR)を評価
-- チェック/コール/ベット/レイズ/フォールド/オールインのラインを検討
-- 推奨アクション（fold/check/call/raise/all_in）と合計額、および根拠を説明
-
-出力: ポストフロップの詳細な戦略分析テキスト（もしくは SKIP）。""",
-    output_key="flop_strategy_analysis",
 )
 
 # JSON整形Agent - どちらの分析を使うかをフェーズで選択してJSON化
@@ -43,7 +24,7 @@ json_formatter_agent = Agent(
     name="poker_json_formatter",
     model="gemini-2.5-flash-lite",
     description="フェーズに応じて分析結果を選択し、規定JSONに整形",
-    instruction="""あなたは戦略分析結果を指定JSON形式に正確に変換します。
+    instruction='''あなたは戦略分析結果を指定JSON形式に正確に変換します。
 
 現在フェーズ: {current_phase}
 プリフロップ分析: {preflop_strategy_analysis}
@@ -66,7 +47,7 @@ json_formatter_agent = Agent(
 - "raise"の場合: レイズ後の合計金額
 - "all_in"の場合: 残りチップ全額
 - 必ず有効なJSONのみを出力（前後に説明文を付けない）
-""",
+''',
 )
 
 # Sequential Agent - フェーズ抽出 → 両戦略エージェント → JSON整形
