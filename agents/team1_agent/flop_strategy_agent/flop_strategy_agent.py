@@ -1,4 +1,4 @@
-
+"""
 Flop Strategy Agent - A multi-step sequential agent for post-flop decisions.
 """
 from google.adk.agents import Agent, SequentialAgent
@@ -13,17 +13,15 @@ from .tools.player_count_analyzer import analyze_player_count
 MODEL_GPT_4O_MINI = LiteLlm(model="gpt-4o-mini")
 AGENT_MODEL = MODEL_GPT_4O_MINI
 
-# Base instruction for agents to skip pre-flop phase
-SKIP_PREFLOP_INSTRUCTION = """
-現在のフェーズ: {current_phase}
-もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。"""
-
 # 1) Hand Evaluator Agent
 hand_evaluator_agent = Agent(
     name="poker_hand_evaluator",
     model=AGENT_MODEL,
     description="手札の完成役の強さを0〜100のスコアで評価します。",
-    instruction=f"{SKIP_PREFLOP_INSTRUCTION}\n\nタスク: `evaluate_hand` ツールを使い、手札の強さを評価してください。",
+    instruction='''現在のフェーズ: {current_phase}
+もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+
+タスク: `evaluate_hand` ツールを使い、手札の強さを評価してください。''',
     tools=[evaluate_hand],
     output_key="hand_evaluation",
 )
@@ -33,7 +31,10 @@ draw_analyzer_agent = Agent(
     name="poker_draw_analyzer",
     model=AGENT_MODEL,
     description="手札がドロー（ストレートやフラッシュの可能性）かどうかを分析します。",
-    instruction=f"{SKIP_PREFLOP_INSTRUCTION}\n\nタスク: `analyze_draw_potential` ツールを使い、ドローの可能性を分析してください。",
+    instruction='''現在のフェーズ: {current_phase}
+もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+
+タスク: `analyze_draw_potential` ツールを使い、ドローの可能性を分析してください。''',
     tools=[analyze_draw_potential],
     output_key="draw_analysis",
 )
@@ -43,7 +44,10 @@ player_count_analyzer_agent = Agent(
     name="poker_player_count_analyzer",
     model=AGENT_MODEL,
     description="現在ハンドに参加しているアクティブなプレイヤーの人数を数えます。",
-    instruction=f"{SKIP_PREFLOP_INSTRUCTION}\n\nタスク: `analyze_player_count` ツールを使い、プレイヤー人数を分析してください。",
+    instruction='''現在のフェーズ: {current_phase}
+もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+
+タスク: `analyze_player_count` ツールを使い、プレイヤー人数を分析してください。''',
     tools=[analyze_player_count],
     output_key="player_count_analysis",
 )
@@ -53,7 +57,10 @@ bet_analyzer_agent = Agent(
     name="poker_bet_analyzer",
     model=AGENT_MODEL,
     description="相手のベットサイズをポットと比較して脅威度を分析します。",
-    instruction=f"{SKIP_PREFLOP_INSTRUCTION}\n\nタスク: `analyze_bet_situation` ツールを使い、ベットの脅威度を判定してください。",
+    instruction='''現在のフェーズ: {current_phase}
+もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+
+タスク: `analyze_bet_situation` ツールを使い、ベットの脅威度を判定してください。''',
     tools=[analyze_bet_situation],
     output_key="bet_situation_analysis",
 )
@@ -63,30 +70,31 @@ semi_bluff_agent = Agent(
     name="poker_semi_bluff_decider",
     model=AGENT_MODEL,
     description="特定の条件が揃った場合にセミブラフを行うかどうかを決定します。",
-    instruction=f'''{SKIP_PREFLOP_INSTRUCTION}
+    instruction='''あなたはポーカーの専門家として、セミブラフを行うべきか否かを判断します。
 
-あなたはポーカーの専門家として、セミブラフを行うべきか否かを判断します。
+現在のフェーズ: {current_phase}
+もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
 
 [分析結果]
-- ドロー状況: {{draw_analysis}}
-- プレイヤー人数: {{player_count_analysis}}
-- ベット状況: {{bet_situation_analysis}}
+- ドロー状況: {draw_analysis}
+- プレイヤー人数: {player_count_analysis}
+- ベット状況: {bet_situation_analysis}
 
 [セミブラフ実行の条件]
-1. ドロー状況で `FLUSH_DRAW` または `OESD` (オープンエンドストレートドロー) が検出されているか？
-2. プレイヤー人数が `2` (ヘッズアップ) か？
+1. ドロー状況の分析結果に `FLUSH_DRAW` または `OESD` (オープンエンドストレートドロー) が含まれているか？
+2. プレイヤー人数の分析結果が `2` (ヘッズアップ) か？
 3. ベット状況の脅威度が `NONE` (自分からベットできる状況) か？
 
 [判断]
-- もし上記の3条件がすべて満たされている場合、セミブラフを実行します。アクションは「ベット」、金額はポットの50%とします。その判断をJSON形式で出力してください。
+- もし上記の3条件がすべて満たされている場合、セミブラフを実行します。アクションは「bet」、金額はポットの50%とします。その判断をJSON形式で出力してください。
 - 条件が満たされない場合は、単語「SKIP」のみを出力してください。
 
 [出力形式（ブラフ実行時）]
-`{{
+`{
   "action": "bet",
   "amount": <ポットの50%の金額>,
   "reasoning": "ヘッズアップでの強いドローによるセミブラフベット。"
-}}`''',
+}`''',
     output_key="bluff_decision",
 )
 
@@ -96,14 +104,16 @@ flop_action_agent = Agent(
     name="poker_flop_action_decider",
     model=AGENT_MODEL,
     description="すべての分析結果を統合し、最終的なアクションを決定します。",
-    instruction=f'''{SKIP_PREFLOP_INSTRUCTION}
+    instruction='''あなたはポーカーの意思決定を行うエキスパートです。すべての分析結果を基に、以下のルールに従ってアクションを決定してください。
 
-あなたはポーカーの意思決定を行うエキスパートです。すべての分析結果を基に、以下のルールに従ってアクションを決定してください。
+[前提]
+- 現在のフェーズ: {current_phase}
+- もし現在のフェーズが "preflop" の場合、または前のステップの分析結果が "SKIP" の場合は、このタスクを実行せずに "SKIP" と出力してください。
 
 [分析結果]
-- 手の強さ: {{hand_evaluation}}
-- ベット状況: {{bet_situation_analysis}}
-- セミブラフ判断: {{bluff_decision}}
+- 手の強さの分析結果: {hand_evaluation}
+- ベット状況の分析結果: {bet_situation_analysis}
+- セミブラフ判断の結果: {bluff_decision}
 
 [ルール]
 - **最優先ルール: セミブラフ**
@@ -120,11 +130,11 @@ flop_action_agent = Agent(
 
 [出力]
 - 以下のJSON形式で、決定したアクションと簡単な理由を出力してください。
-`{{
+`{
   "action": "fold|check|call|raise|bet|all_in",
   "amount": <数値>,
   "reasoning": "戦略的理由の要約（日本語）"
-}}`''',
+}`''',
     output_key="flop_strategy_analysis",
 )
 
