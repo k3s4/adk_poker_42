@@ -30,8 +30,7 @@ def analyze_preflop_position_value(
         
         # ポジション係数
         position_multiplier = {
-            "UTG": 0.7,      # 最初のポジション - 厳しい
-            "MP": 0.8,       # ミドルポジション
+            "UTG": 0.8,      # 最初のポジション - 厳しい
             "CO": 0.9,       # カットオフ
             "BTN": 1.0,      # ボタン - 最有利
             "SB": 0.85,      # スモールブラインド
@@ -44,13 +43,13 @@ def analyze_preflop_position_value(
         # アクション提案（スコア0-6ベース）
         recommendation = ""
         if position_adjusted_score >= 5:
-            recommendation = "レイズ推奨"
-        elif position_adjusted_score >= 3:
-            recommendation = "コール or レイズ"
-        elif position_adjusted_score >= 1.5:
-            recommendation = "フォルド or コール（位置による）"
+            recommendation = "レイズ or 3bet or 4bet"
+        elif position_adjusted_score >= 4:
+            recommendation = "レイズ or 3bet"
+        elif position_adjusted_score >= 1:
+            recommendation = "レイズ"
         else:
-            recommendation = "フォルド推奨"
+            recommendation = "フォールド推奨"
         
         return {
             "hole_cards": hole_cards,
@@ -59,8 +58,7 @@ def analyze_preflop_position_value(
             "base_score": category_score,
             "position_adjusted_score": position_adjusted_score,
             "hand_category": category,
-            "recommendation": recommendation,
-            "notes": "ポジション調整済みのスコア（0-6ベース）"
+            "recommendation": recommendation
         }
     
     except Exception as e:
