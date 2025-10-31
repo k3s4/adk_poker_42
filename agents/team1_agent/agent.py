@@ -1,4 +1,5 @@
 from google.adk.agents import Agent, SequentialAgent
+from .preflop import preflop_strategy_agent
 
 # Define model constant
 MODEL_GPT_4O_MINI = "gpt-4o-mini"
@@ -14,26 +15,6 @@ phase_extractor_agent = Agent(
 出力は次のいずれかの単語のみ: preflop / flop / turn / river
 余計な説明・記号や引用符は付けず、該当語のみをそのまま出力してください。""",
     output_key="current_phase",
-)
-
-# プリフロップ専用 戦略分析Agent
-preflop_strategy_agent = Agent(
-    name="poker_preflop_strategy_analyzer",
-    model=AGENT_MODEL,
-    description="プリフロップの戦略分析に特化したエージェント",
-    instruction="""あなたはテキサスホールデムのプリフロップ戦略に特化したアナリストです。
-
-前提:
-- 現在フェーズ: {current_phase}
-もし {current_phase} が "preflop" 以外であれば、分析は行わずに次の1語のみ出力: SKIP
-
-タスク(プリフロップの場合のみ実行):
-- ハンドレンジ、ポジション、スタック深さ、ブラインド状況、先行アクションを考慮
-- リンプ/レイズ/3bet/フォールド/オールインの是非を評価
-- 推奨アクション（fold/check/call/raise/all_in）と合計額、および根拠を説明
-
-出力: プリフロップの詳細な戦略分析テキスト（もしくは SKIP）。""",
-    output_key="preflop_strategy_analysis",
 )
 
 # フロップ専用 戦略分析Agent（フロップ以降もここに集約）
