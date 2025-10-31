@@ -2,7 +2,7 @@ from google.adk.agents import Agent
 
 root_agent = Agent(
     name="beginner_poker_agent",
-    model="gemini-2.5-flash-lite",
+    model="gpt-4o-mini",
     description="戦略的な意思決定を行うテキサスホールデム・ポーカープレイヤー",
     instruction="""あなたはテキサスホールデム・ポーカーのエキスパートプレイヤーです。
 

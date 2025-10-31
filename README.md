@@ -1,4 +1,4 @@
-# ADK Poker - テキサスホールデム ポーカーゲーム
+cd agents && uv run adk api_server --port 8000# ADK Poker - テキサスホールデム ポーカーゲーム
 
 LLMプレイヤー対応のWebアプリ（Flet）/CLIのテキサスホールデムポーカー
 
