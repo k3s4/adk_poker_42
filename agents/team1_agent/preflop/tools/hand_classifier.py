@@ -26,14 +26,21 @@ def _convert_to_hand_notation(hole_cards: List[str]) -> str:
     suit1 = card1_str[-1]
     suit2 = card2_str[-1]
     
+    # ポーカーランク強度マップ
+    rank_strength = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10,
+                     "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9}
+    
     # ホールカードを標準形式に変換
     # 例: ["A♥", "K♠"] → "AKo", ["A♥", "K♥"] → "AKs", ["A♥", "A♠"] → "AA"
     if rank1 == rank2:
         # ペア
         return f"{rank1}{rank2}"
     else:
-        # 高いランクを先に
-        if ord(rank1) < ord(rank2):
+        # ポーカーの強さが高い順にソート
+        rank1_strength = rank_strength.get(rank1, 0)
+        rank2_strength = rank_strength.get(rank2, 0)
+        
+        if rank1_strength < rank2_strength:
             rank1, rank2 = rank2, rank1
         
         # スーテッド判定
@@ -62,6 +69,7 @@ def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
         # ホールカードを標準形式に変換
         hand_notation = _convert_to_hand_notation(hole_cards)
         
+        print(f"\033[93m[DEBUG] hand_notation: {hand_notation}\033[0m")
         # カテゴリ→スコアマッピング
         category_score_map = {
             HandCategory.NAVY: 6,
@@ -74,9 +82,13 @@ def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
         }
         
         # HandCategoryから手を探す
-        for category, score in category_score_map.items():
+        for category in HandCategory:
+            score = category_score_map[category]
             # カテゴリの値文字列に手が含まれているかチェック
             if hand_notation in category.value.replace(" ", ""):
+                print(f"\033[93m[DEBUG] hole_cards: {hole_cards}\033[0m")
+                print(f"\033[93m[DEBUG] category: {category.value}\033[0m")
+                print(f"\033[93m[DEBUG] category_score: {score}\033[0m")
                 return {
                     "hole_cards": hole_cards,
                     "category": category.value,
