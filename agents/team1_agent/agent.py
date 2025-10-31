@@ -57,7 +57,7 @@ json_formatter_agent = Agent(
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
-  "reasoning": "戦略的理由の要約（日本語）"
+  "reasoning": "戦略的理由を詳細に説明（日本語）"
 }
 
 ルール:
