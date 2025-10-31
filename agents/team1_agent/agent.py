@@ -1,5 +1,6 @@
 from google.adk.agents import Agent, SequentialAgent
 from .preflop import preflop_strategy_agent
+from .flop_strategy_agent import flop_strategy_agent
 
 # Define model constant
 MODEL_GPT_4O_MINI = "gpt-4o-mini"
@@ -15,26 +16,6 @@ phase_extractor_agent = Agent(
 出力は次のいずれかの単語のみ: preflop / flop / turn / river
 余計な説明・記号や引用符は付けず、該当語のみをそのまま出力してください。""",
     output_key="current_phase",
-)
-
-# フロップ専用 戦略分析Agent（フロップ以降もここに集約）
-flop_strategy_agent = Agent(
-    name="poker_flop_strategy_analyzer",
-    model=AGENT_MODEL,
-    description="フロップ以降(フロップ/ターン/リバー)の戦略分析に特化したエージェント",
-    instruction="""あなたはテキサスホールデムのポストフロップ戦略に特化したアナリストです。
-
-前提:
-- 現在フェーズ: {current_phase}
-もし {current_phase} が "flop"/"turn"/"river" 以外（= preflop）であれば、分析は行わず "SKIP" とだけ出力
-
-タスク(フロップ/ターン/リバーの場合のみ実行):
-- ボードテクスチャ、レンジ相性、エクイティ/実現性、スタック/ポット比(SPR)を評価
-- チェック/コール/ベット/レイズ/フォールド/オールインのラインを検討
-- 推奨アクション（fold/check/call/raise/all_in）と合計額、および根拠を説明
-
-出力: ポストフロップの詳細な戦略分析テキスト（もしくは SKIP）。""",
-    output_key="flop_strategy_analysis",
 )
 
 # JSON整形Agent - どちらの分析を使うかをフェーズで選択してJSON化
