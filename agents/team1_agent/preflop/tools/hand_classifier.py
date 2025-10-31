@@ -48,7 +48,7 @@ def _convert_to_hand_notation(hole_cards: List[str]) -> str:
         return f"{rank1}{rank2}{suited_suffix}"
 
 
-def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
+def classify_hand(hole_cards: List[str], position: str) -> Dict[str, Any]:
     """
     ハンドをカテゴリーで分類し、スコア(0-6)を返す
     
@@ -62,7 +62,8 @@ def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
         return {
             "error": "ホールカードは2枚である必要があります",
             "category": "不明",
-            "category_score": 0
+            "category_score": 0,
+            "position": position
         }
     
     try:
@@ -93,6 +94,7 @@ def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
                     "hole_cards": hole_cards,
                     "category": category.value,
                     "category_score": score,
+                    "position": position
                 }
         
         # どのカテゴリにも含まれなかったらGRAY
@@ -100,7 +102,8 @@ def classify_hand(hole_cards: List[str]) -> Dict[str, Any]:
             "hole_cards": hole_cards,
             "category": HandCategory.GRAY.value,
             "category_score": 0,
+            "position": position
         }
     
     except Exception as e:
-        return {"error": str(e), "category": "不明", "category_score": 0}
+        return {"error": str(e), "category": "不明", "category_score": 0, "position": position}
