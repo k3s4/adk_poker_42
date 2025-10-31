@@ -20,12 +20,12 @@ position_checker_agent = Agent(
 
 前提:
 - 現在フェーズ: {current_phase}
-- {current_phase} が "preflop" 以外なら、ただ "SKIP" と出力
+- {current_phase} が "preflop" 以外なら、タスクを実行せずにただ "SKIP" と出力
 
 タスク(プリフロップ時のみ実行):
 - あなたのポジションを次のいずれか1語で厳密に出力: UTG / CO / BTN / SB / BB
 
-出力: 上記のいずれか1語のみ（もしくは SKIP）。""",
+出力: 上記のいずれか1語と（もしくは SKIP）。""",
     output_key="position",
 )
 
@@ -38,7 +38,7 @@ hand_classifier_agent = Agent(
 
 前提:
 - 現在フェーズ: {current_phase}
-- {current_phase} が "preflop" 以外、または {position} が "SKIP" の場合は "SKIP" と出力
+- {current_phase} が "preflop" 以外、または {position} が "SKIP" の場合はタスクを実行せずに"SKIP" と出力
 
 タスク(プリフロップ時のみ実行):
 - classify_hand ツールを使用して、ホールカードを分類し、強さスコアを算出
@@ -62,7 +62,7 @@ preflop_action_agent = Agent(
 
 前提:
 - 現在フェーズ: {current_phase}
-- {current_phase} が "preflop" 以外、または {position} が "SKIP" の場合は "SKIP" と出力
+- {current_phase} が "preflop" 以外、または {position} が "SKIP" の場合はタスクを実行せずに"SKIP" と出力
 - 前ステップで計算済みのハンド強さスコア: {hand_classification}
 
 タスク(プリフロップ時のみ実行):
