@@ -1,7 +1,7 @@
 # agents/team1_agent/flop_strategy_agent/flop_strategy_agent.py
 
 from google.adk.agents import Agent
-from .tools import suggest_flop_action
+from .tools.flop_tools import suggest_flop_action
 
 # Define model constant
 MODEL_GPT_4O_MINI = "gpt-4o-mini"

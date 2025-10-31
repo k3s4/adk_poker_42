@@ -99,10 +99,12 @@ class Hand(Hashable, ABC):
         return self.lookup.get_entry(self.cards)
 
 
-class CombinationHand(Hand, ABC):
-    """The abstract base class for combination hands."""
+class StandardHighHand(Hand):
+    """The class for standard high hands."""
 
-    card_count: ClassVar[int]
+    lookup = StandardLookup()
+    card_count = 5
+    low = False
 
     @classmethod
     def from_game(
@@ -134,16 +136,3 @@ class CombinationHand(Hand, ABC):
             )
 
         return max_hand
-
-
-class StandardHand(CombinationHand, ABC):
-    """The abstract base class for standard hands."""
-
-    lookup = StandardLookup()
-    card_count = 5
-
-
-class StandardHighHand(StandardHand):
-    """The class for standard high hands."""
-
-    low = False
