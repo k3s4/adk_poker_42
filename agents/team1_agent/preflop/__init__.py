@@ -1,3 +1,3 @@
-from .agent import preflop_strategy_agent
+from .preflop_strategy_agent import preflop_strategy_agent
 
 __all__ = ["preflop_strategy_agent"]
