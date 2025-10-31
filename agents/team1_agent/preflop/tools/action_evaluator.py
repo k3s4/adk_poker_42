@@ -47,6 +47,11 @@ def evaluate_preflop_action(
         if to_call > 0:
             pot_odds = round(to_call / (pot_size + to_call), 2)
         
+        # デバッグ出力
+        print(f"\033[93m[EVALUATE_ACTION] adj_score: {adj_score}\033[0m")
+        print(f"\033[93m[EVALUATE_ACTION] prior_raises: {raise_count}\033[0m")
+        print(f"\033[93m[EVALUATE_ACTION] pot_odds: {pot_odds}\033[0m")
+        
         # 推奨アクション（スコア0-6ベース）
         action_recommendation = ""
         amount_recommendation = 0
@@ -79,6 +84,10 @@ def evaluate_preflop_action(
                 action_recommendation = "fold"
                 amount_recommendation = 0
         
+        # 推奨結果の出力
+        print(f"\033[93m[EVALUATE_ACTION] recommended_action: {action_recommendation}\033[0m")
+        print(f"\033[93m[EVALUATE_ACTION] recommended_amount: {round(amount_recommendation)}\033[0m")
+
         return {
             "hole_cards": hole_cards,
             "position": position,
@@ -89,7 +98,6 @@ def evaluate_preflop_action(
             "your_stack": your_stack,
             "recommended_action": action_recommendation,
             "recommended_amount": round(amount_recommendation),
-            "reasoning": f"ハンド強度{adj_score} + ポットオッズ{pot_odds} + 先行レイズ{raise_count}を総合判断"
         }
     
     except Exception as e:
