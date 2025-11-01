@@ -19,7 +19,8 @@ hand_evaluator_agent = Agent(
     model=AGENT_MODEL,
     description="手札の完成役の強さを0〜100のスコアで評価します。",
     instruction='''現在のフェーズ: {current_phase}
-もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+{current_phase} が "preflop" の場合は "SKIP" と出力してください。
+それ以外の場合は以下のタスクを実行してください。
 
 タスク: `evaluate_hand` ツールを使い、手札の強さを評価してください。''',
     tools=[evaluate_hand],
@@ -32,7 +33,8 @@ draw_analyzer_agent = Agent(
     model=AGENT_MODEL,
     description="手札がドロー（ストレートやフラッシュの可能性）かどうかを分析します。",
     instruction='''現在のフェーズ: {current_phase}
-もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+{current_phase} が "preflop" の場合は "SKIP" と出力してください。
+それ以外の場合は以下のタスクを実行してください。
 
 タスク: `analyze_draw_potential` ツールを使い、ドローの可能性を分析してください。''',
     tools=[analyze_draw_potential],
@@ -45,7 +47,8 @@ player_count_analyzer_agent = Agent(
     model=AGENT_MODEL,
     description="現在ハンドに参加しているアクティブなプレイヤーの人数を数えます。",
     instruction='''現在のフェーズ: {current_phase}
-もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+{current_phase} が "preflop" の場合は "SKIP" と出力してください。
+それ以外の場合は以下のタスクを実行してください。
 
 タスク: `analyze_player_count` ツールを使い、プレイヤー人数を分析してください。''',
     tools=[analyze_player_count],
@@ -58,7 +61,8 @@ bet_analyzer_agent = Agent(
     model=AGENT_MODEL,
     description="相手のベットサイズをポットと比較して脅威度を分析します。",
     instruction='''現在のフェーズ: {current_phase}
-もし {current_phase} が "preflop" の場合、タスクを実行せずに "SKIP" と出力してください。
+{current_phase} が "preflop" の場合は "SKIP" と出力してください。
+それ以外の場合は以下のタスクを実行してください。
 
 タスク: `analyze_bet_situation` ツールを使い、ベットの脅威度を判定してください。''',
     tools=[analyze_bet_situation],
