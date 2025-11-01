@@ -10,6 +10,7 @@ def evaluate_preflop_action(
     hole_cards: List[str],
     position: str = "BTN",
     action_before_you: Optional[List[str]] = None,
+    pot_size: int = 30,
     your_stack: int = 1000,
     to_call: int = 0,
     blind_size: int = 20,
@@ -22,6 +23,7 @@ def evaluate_preflop_action(
         hole_cards: ホールカード
         position: あなたのポジション
         action_before_you: これまでのアクション（例: ["UTG: fold", "MP: raise 40"]）
+        pot_size: 現在のポット
         your_stack: あなたのスタック
         to_call: コールに必要な金額
         blind_size: BBサイズ
@@ -37,12 +39,13 @@ def evaluate_preflop_action(
 
             # ポジション係数（position_analyzer と同一ロジック）
             position_multiplier = {
-            "UTG": 0.9,      # 最初のポジション - 厳しい
-            "CO": 1.0,       # カットオフ
-            "BTN": 1.2,      # ボタン - 最有利
-            "SB": 1.0,      # スモールブラインド
-            "BB": 1.1,       # ビッグブラインド - ディフェンス有利
-        }
+                "UTG": 0.7,
+                "MP": 0.8,
+                "CO": 0.9,
+                "BTN": 1.0,
+                "SB": 0.85,
+                "BB": 1.1,
+            }
             pos_mult = position_multiplier.get(position_for_calc, 0.9)
             adj_score = round(category_score * pos_mult, 1)
         else:
@@ -56,9 +59,15 @@ def evaluate_preflop_action(
         if action_before_you:
             raise_count = sum(1 for a in action_before_you if "raise" in a.lower())
         
+        # ポットオッズ計算
+        pot_odds = 0.0
+        if to_call > 0:
+            pot_odds = round(to_call / (pot_size + to_call), 2)
+        
         # デバッグ出力
         print(f"\033[93m[EVALUATE_ACTION] adj_score: {adj_score}\033[0m")
         print(f"\033[93m[EVALUATE_ACTION] prior_raises: {raise_count}\033[0m")
+        print(f"\033[93m[EVALUATE_ACTION] pot_odds: {pot_odds}\033[0m")
         
         # 推奨アクション（スコア0-6ベース）
         action_recommendation = ""
@@ -66,28 +75,28 @@ def evaluate_preflop_action(
         
         if raise_count >= 2:
             # 複数のレイズ → 強いハンドのみ
-            if adj_score >= 4.5:
+            if adj_score >= 5:
                 action_recommendation = "4bet"
-                amount_recommendation = blind_size * 10
+                amount_recommendation = max(blind_size * 8, to_call * 3) if to_call > 0 else blind_size * 8
             else:
                 action_recommendation = "fold"
                 amount_recommendation = 0
         elif raise_count == 1:
             # 1レイズ入っている
-            if adj_score >= 3:
-                action_recommendation = "3bet"
-                amount_recommendation = blind_size * 3
-            elif adj_score >= 1:
-                action_recommendation = "call"
-                amount_recommendation = to_call
+            if adj_score >= 4:
+                action_recommendation = "call or 3bet"
+                amount_recommendation = to_call if to_call > 0 else 0
             else:
                 action_recommendation = "fold"
                 amount_recommendation = 0
         else:
             # オープンポット
-            if adj_score >= 1:
+            if adj_score >= 4.5:
                 action_recommendation = "raise"
-                amount_recommendation = blind_size * 3
+                amount_recommendation = blind_size * 2.5
+            elif adj_score >= 3:
+                action_recommendation = "call"
+                amount_recommendation = to_call if to_call > 0 else 0
             else:
                 action_recommendation = "fold"
                 amount_recommendation = 0
@@ -101,6 +110,7 @@ def evaluate_preflop_action(
             "position": position,
             "strength_score": adj_score,
             "prior_raises": raise_count,
+            "pot_odds": pot_odds,
             "to_call": to_call,
             "your_stack": your_stack,
             "recommended_action": action_recommendation,
