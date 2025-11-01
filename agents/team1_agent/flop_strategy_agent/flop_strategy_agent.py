@@ -40,7 +40,6 @@ draw_analyzer_agent = Agent(
     output_key="draw_analysis",
 )
 
-
 # 4) Bet Situation Analyzer Agent
 bet_analyzer_agent = Agent(
     name="poker_bet_analyzer",
@@ -85,18 +84,17 @@ active_player_count = len(active_players)
 ```
 
 [判断]
-- もし上記の3条件がすべて満たされている場合、セミブラフを実行します。アクションは「bet」、金額はポットの50%とします。その判断をJSON形式で出力してください。
+- もし上記の3条件がすべて満たされている場合、セミブラフを実行します。アクションは「raise」、金額はポットの50%とします。その判断をJSON形式で出力してください。
 - 条件が満たされない場合は、単語「SKIP」のみを出力してください。
 
 [出力形式（ブラフ実行時）]
 `{
-  "action": "bet",
+  "action": "raise",
   "amount": <ポットの50%の金額>,
-  "reasoning": "ヘッズアップでの強いドローによるセミブラフベット。"
+  "reasoning": "ヘッズアップでの強いドローによるセミブラフレイズ。"
 }`''',
     output_key="bluff_decision",
 )
-
 
 # 6) Final Action Decider Agent
 flop_action_agent = Agent(
@@ -128,21 +126,21 @@ flop_action_agent = Agent(
 
 - **通常ルール（上記に当てはまらない場合）**
   - `hand_evaluation` の `strength_score` と `bet_situation_analysis` の `threat_level` を使って、完成役の価値に基づいた判断を行ってください。
-  - **ルールA: モンスターハンド (スコア >= 90)**: フォールドしない。threat_level="NONE"なら「ポットサイズの75-100%でベット」、それ以外は「コール／オールイン」。
-  - **ルールB: 非常に強い手 (スコア 80〜89)**: 脅威度がEXTREMEならフォールド。threat_level="NONE"なら「ポットサイズの50-75%でベット」、それ以外は「コール／レイズ」。
-  - **ルールC: 良い手 (スコア 65〜79)**: 脅威度がHIGH以上ならフォールド。threat_level="NONE"なら「ポットサイズの30-50%でベット」、それ以外は「コール／チェック」。
+  - **ルールA: モンスターハンド (スコア >= 90)**: フォールドしない。threat_level="NONE"なら「ポットサイズの75-100%でレイズ」、それ以外は「コール／オールイン」。
+  - **ルールB: 非常に強い手 (スコア 80〜89)**: 脅威度がEXTREMEならフォールド。threat_level="NONE"なら「ポットサイズの50-75%でレイズ」、それ以外は「コール／レイズ」。
+  - **ルールC: 良い手 (スコア 65〜79)**: 脅威度がHIGH以上ならフォールド。threat_level="NONE"なら「ポットサイズの30-50%でレイズ」、それ以外は「コール／チェック」。
   - **ルールD: 中間的な手 (スコア 50〜64)**: 脅威度がMEDIUM以上ならフォールド。LOWならコール、NONEならチェック。
   - **ルールE: ウィークハンド (スコア < 50)**: ベットがあれば即フォールド。なければチェック。
 
-[ベットサイズ計算ルール]
-- ポットサイズの範囲でベットする場合、その範囲内でランダムに選択してください
-- 例: "ポットサイズの50-75%でベット" → ポットが120なら60-90の間でランダムに選択
+[レイズサイズ計算ルール]
+- ポットサイズの範囲でレイズする場合、その範囲内でランダムに選択してください
+- 例: "ポットサイズの50-75%でレイズ" → ポットが120なら60-90の間でランダムに選択
 - bet_situation_analysisからpot_sizeの値を取得して計算してください
 
 [出力]
 - 以下のJSON形式で、決定したアクションと簡単な理由を出力してください。
 `{
-  "action": "fold|check|call|raise|bet|all_in",
+  "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
   "reasoning": "戦略的理由の要約（日本語）"
 }`
