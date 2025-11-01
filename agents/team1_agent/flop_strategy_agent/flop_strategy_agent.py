@@ -7,7 +7,6 @@ from google.adk.models.lite_llm import LiteLlm
 from .tools.hand_evaluator import evaluate_hand
 from .tools.analyze_bet_situation import analyze_bet_situation
 from .tools.draw_analyzer import analyze_draw_potential
-from .tools.player_count_analyzer import analyze_player_count
 
 # --- Agent Definition ---
 MODEL_GPT_4O_MINI = LiteLlm(model="gpt-4o-mini")
@@ -41,19 +40,6 @@ draw_analyzer_agent = Agent(
     output_key="draw_analysis",
 )
 
-# 3) Player Count Analyzer Agent
-player_count_analyzer_agent = Agent(
-    name="poker_player_count_analyzer",
-    model=AGENT_MODEL,
-    description="現在ハンドに参加しているアクティブなプレイヤーの人数を数えます。",
-    instruction='''現在のフェーズ: {current_phase}
-{current_phase} が "preflop" の場合は "SKIP" と出力してください。
-それ以外の場合は以下のタスクを実行してください。
-
-タスク: `analyze_player_count` ツールを使い、プレイヤー人数を分析してください。''',
-    tools=[analyze_player_count],
-    output_key="player_count_analysis",
-)
 
 # 4) Bet Situation Analyzer Agent
 bet_analyzer_agent = Agent(
@@ -81,13 +67,22 @@ semi_bluff_agent = Agent(
 
 [分析結果]
 - ドロー状況: {draw_analysis}
-- プレイヤー人数: {player_count_analysis}
 - ベット状況: {bet_situation_analysis}
 
 [セミブラフ実行の条件]
 1. ドロー状況の分析結果に `FLUSH_DRAW` または `OESD` (オープンエンドストレートドロー) が含まれているか？
-2. プレイヤー人数の分析結果が `2` (ヘッズアップ) か？
-3. ベット状況の脅威度が `NONE` (自分からベットできる状況) か？
+2. ベット状況の脅威度が `NONE` (自分からベットできる状況) か？
+3. アクティブプレイヤーが2人の場合（ヘッズアップ）か？
+
+[プレイヤー人数の判定方法]
+以下のpython形式のロジックを使用してアクティブプレイヤー数を計算してください：
+```python
+# ゲーム状態からプレイヤーリストを取得
+players = game_state.get('players', [])
+# フォールドしていないプレイヤーをカウント
+active_players = [p for p in players if p.get('state') != 'folded']
+active_player_count = len(active_players)
+```
 
 [判断]
 - もし上記の3条件がすべて満たされている場合、セミブラフを実行します。アクションは「bet」、金額はポットの50%とします。その判断をJSON形式で出力してください。
@@ -161,7 +156,6 @@ flop_strategy_agent = SequentialAgent(
     sub_agents=[
         hand_evaluator_agent,
         draw_analyzer_agent,
-        player_count_analyzer_agent,
         bet_analyzer_agent,
         semi_bluff_agent,
         flop_action_agent,
