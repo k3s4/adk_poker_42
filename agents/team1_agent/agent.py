@@ -22,7 +22,7 @@ phase_extractor_agent = Agent(
 # JSON整形Agent - どちらの分析を使うかをフェーズで選択してJSON化
 json_formatter_agent = Agent(
     name="poker_json_formatter",
-    model="gemini-2.5-flash-lite",
+    model=AGENT_MODEL,
     description="フェーズに応じて分析結果を選択し、規定JSONに整形",
     instruction='''あなたは戦略分析結果を指定JSON形式に正確に変換します。
 
