@@ -139,11 +139,14 @@ flop_action_agent = Agent(
 
 [出力]
 - 以下のJSON形式で、決定したアクションと簡単な理由を出力してください。
-`{
+- マークダウンコードブロック（```）は絶対に使用しないでください。
+- 純粋なJSONのみを出力してください。
+
+{
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
   "reasoning": "戦略的理由の要約（日本語）"
-}`
+}
 ''',
     output_key="flop_strategy_analysis",
 )

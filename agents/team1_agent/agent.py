@@ -29,12 +29,18 @@ json_selector_agent = Agent(
 ポストフロップ分析: {flop_strategy_analysis}
 
 タスク:
-1) {current_phase} が "preflop" の場合は {preflop_strategy_analysis} をそのまま出力
-2) それ以外の場合は {flop_strategy_analysis} をそのまま出力
-3) 選択した結果が "SKIP" の場合は、もう一方をそのまま出力
-4) 何も変更せず、選択した結果をそのまま出力してください
+1) {current_phase} が "preflop" の場合は {preflop_strategy_analysis} を選択
+2) それ以外の場合は {flop_strategy_analysis} を選択
+3) 選択した結果が "SKIP" の場合は、もう一方を選択
+4) 選択した結果からマークダウンコードブロック（```json や ```）を除去
+5) 純粋なJSONのみを出力してください
 
-注意: JSON形式の変更や追加の説明は一切不要です。選択した結果をそのまま出力するだけです。''',
+出力形式: 以下の形式の純粋なJSONのみ（マークダウン記号なし）
+{
+  "action": "fold|check|call|raise|all_in",
+  "amount": <数値>,
+  "reasoning": "決定理由の説明"
+}''',
 )
 
 # Sequential Agent - フェーズ抽出 → 両戦略エージェント → JSON選択
