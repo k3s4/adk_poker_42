@@ -19,44 +19,37 @@ phase_extractor_agent = Agent(
     output_key="current_phase",
 )
 
-# JSON整形Agent - どちらの分析を使うかをフェーズで選択してJSON化
-json_formatter_agent = Agent(
-    name="poker_json_formatter",
+# JSON選択Agent - フェーズに応じて適切な分析結果を選択
+json_selector_agent = Agent(
+    name="poker_json_selector",
     model=AGENT_MODEL,
-    description="フェーズに応じて分析結果を選択し、規定JSONに整形",
-    instruction='''あなたは戦略分析結果を指定JSON形式に正確に変換します。
-
-現在フェーズ: {current_phase}
+    description="フェーズに応じて適切な分析結果を選択してそのまま出力",
+    instruction='''現在フェーズ: {current_phase}
 プリフロップ分析: {preflop_strategy_analysis}
 ポストフロップ分析: {flop_strategy_analysis}
 
-手順:
-1) {current_phase} が preflop の場合は {preflop_strategy_analysis} を、
-   それ以外の場合は {flop_strategy_analysis} を採用する。
-2) 採用対象が "SKIP" のときは、もう一方を採用する。
-3) 採用した分析内容を根拠に、以下のJSONを厳密に出力する:
+タスク:
+1) {current_phase} が "preflop" の場合は {preflop_strategy_analysis} を選択
+2) それ以外の場合は {flop_strategy_analysis} を選択
+3) 選択した結果が "SKIP" の場合は、もう一方を選択
+4) 選択した結果からマークダウンコードブロック（```json や ```）を除去
+5) 純粋なJSONのみを出力してください
+
+出力形式: 以下の形式の純粋なJSONのみ（マークダウン記号なし）
 {
   "action": "fold|check|call|raise|all_in",
   "amount": <数値>,
-  "reasoning": "戦略的理由を詳細に説明（日本語）"
-}
-
-ルール:
-- "fold"と"check"の場合: amountは0
-- "call"の場合: コールに必要な正確な金額
-- "raise"の場合: レイズ後の合計金額
-- "all_in"の場合: 残りチップ全額
-- 必ず有効なJSONのみを出力（前後に説明文を付けない）
-''',
+  "reasoning": "決定理由の説明"
+}''',
 )
 
-# Sequential Agent - フェーズ抽出 → 両戦略エージェント → JSON整形
+# Sequential Agent - フェーズ抽出 → 両戦略エージェント → JSON選択
 root_agent = SequentialAgent(
     name="poker_routed_workflow_agent",
     sub_agents=[
         phase_extractor_agent,
         preflop_strategy_agent,
         flop_strategy_agent,
-        json_formatter_agent,
+        json_selector_agent,
     ],
 )

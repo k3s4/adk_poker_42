@@ -139,7 +139,7 @@ def _calculate_strength_score(hand_name, hand_details, hole_cards, community_car
         # Weighted score for pairs and kicker
         base_score = 80 + (top_pair / 12 * 5) + (bottom_pair / 12 * 3) + (kicker / 12 * 1)
 
-    # --- One Pair: 40-79 (highly contextual) --- 
+    # --- One Pair: 30-85 (highly contextual) --- 
     elif hand_name == "ONE_PAIR":
         # コミュニティカードの最高ランクを正しく計算（エラーハンドリング付き）
         try:
@@ -160,18 +160,22 @@ def _calculate_strength_score(hand_name, hand_details, hole_cards, community_car
         except (ValueError, IndexError):
             is_pocket_pair = False
         if is_pocket_pair and pair_rank > max_community_rank:
-            base_score = 70 + (pair_rank / 12 * 9) # 70-79
+            base_score = 75 + (pair_rank / 12 * 10) # 75-85
         # Case 2: Top Pair (pair matches top card on board)
         elif pair_rank == max_community_rank:
-            base_score = 65 + (kicker_rank / 12 * 10) # 65-75
-        # Case 3: Middle or Bottom Pair
+            # 強いキッカー（A,K,Q）には大きなボーナス
+            if kicker_rank >= RANK_MAP['Q']:
+                base_score = 70 + (kicker_rank / 12 * 15) # 70-85
+            else:
+                base_score = 60 + (kicker_rank / 12 * 10) # 60-70
+        # Case 3: Middle or Bottom Pair (大幅減点)
         else:
-            base_score = 40 + (pair_rank / 12 * 15) + (kicker_rank / 12 * 10) # 40-65
+            base_score = 30 + (pair_rank / 12 * 10) + (kicker_rank / 12 * 5) # 30-45
 
-    # --- High Card: 0-39 ---
+    # --- High Card: 0-25 (大幅減点) ---
     elif hand_name == "HIGH_CARD":
         high_card_rank = kickers[0] if kickers else 0
-        base_score = 0 + (high_card_rank / 12 * 39)
+        base_score = 0 + (high_card_rank / 12 * 25)
 
     return round(min(base_score, 100.0), 2)
 
