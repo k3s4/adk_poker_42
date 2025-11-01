@@ -28,12 +28,12 @@ def analyze_preflop_position_value(
         category_score = hand_class["category_score"]  # 0-6の整数
         category = hand_class["category"]
         
-        # ポジション係数
+        # ポジション係数（5人プレイ用）
         position_multiplier = {
-            "UTG": 0.9,      # 最初のポジション - 厳しい
-            "CO": 1.0,       # カットオフ
+            "UTG": 1.0,      # アンダーザガン（5人では相対的に良い）
+            "CO": 1.1,       # カットオフ
             "BTN": 1.2,      # ボタン - 最有利
-            "SB": 1.0,      # スモールブラインド
+            "SB": 1.0,       # スモールブラインド
             "BB": 1.1,       # ビッグブラインド - ディフェンス有利
         }
         

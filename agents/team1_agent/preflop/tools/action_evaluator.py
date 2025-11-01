@@ -36,12 +36,12 @@ def evaluate_preflop_action(
             category_score = hand_classification.get("category_score", 0)
             position_for_calc = hand_classification.get("position", position) or position
 
-            # ポジション係数（position_analyzer と同一ロジック）
+            # ポジション係数（5人プレイ用）
             position_multiplier = {
-            "UTG": 0.9,      # 最初のポジション - 厳しい
-            "CO": 1.0,       # カットオフ
-            "BTN": 1.2,      # ボタン - 最有利
-            "SB": 1.0,      # スモールブラインド
+            "UTG": 1.0,      # アンダーザガン（5人では相対的に良い）
+            "CO": 1.1,       # カットオフ
+            "BTN": 1.3,      # ボタン - 最有利
+            "SB": 1.0,       # スモールブラインド
             "BB": 1.1,       # ビッグブラインド - ディフェンス有利
         }
             pos_mult = position_multiplier.get(position_for_calc, 0.9)
@@ -65,17 +65,33 @@ def evaluate_preflop_action(
         action_recommendation = ""
         amount_recommendation = 0
         
-        if raise_count >= 2:
-            # 複数のレイズ → 強いハンドのみ
-            if adj_score >= 4.5:
+        if raise_count >= 4:
+            # 4回以上のレイズ → オールインかフォールドのみ
+            if adj_score >= 5.5:  # 最強クラスのハンドのみ
+                action_recommendation = "call"  # オールインシナリオ
+                amount_recommendation = min(your_stack, to_call)
+            else:
+                action_recommendation = "fold"
+                amount_recommendation = 0
+        elif raise_count == 3:
+            # 3レイズ目 → 極めて強いハンドのみ
+            if adj_score >= 5.0:
+                action_recommendation = "call"  # 5bet相当だがcallで応答
+                amount_recommendation = min(your_stack, to_call)
+            else:
+                action_recommendation = "fold"
+                amount_recommendation = 0
+        elif raise_count == 2:
+            # 2レイズ目 → 強いハンドのみ
+            if adj_score >= 5.0:
                 action_recommendation = "4bet"
-                amount_recommendation = blind_size * 10
+                amount_recommendation = min(blind_size * 10, your_stack)
             else:
                 action_recommendation = "fold"
                 amount_recommendation = 0
         elif raise_count == 1:
             # 1レイズ入っている
-            if adj_score >= 3:
+            if adj_score >= 3.5:
                 action_recommendation = "3bet"
                 amount_recommendation = blind_size * 3
             elif adj_score >= 1:
