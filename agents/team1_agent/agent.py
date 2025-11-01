@@ -36,7 +36,7 @@ json_formatter_agent = Agent(
 2) 採用対象が "SKIP" のときは、もう一方を採用する。
 3) 採用した分析内容を根拠に、以下のJSONを厳密に出力する:
 {
-  "action": "fold|check|call|raise|all_in",
+  "action": "fold|check|call|raise|bet|all_in",
   "amount": <数値>,
   "reasoning": "戦略的理由を詳細に説明（日本語）"
 }
@@ -45,6 +45,7 @@ json_formatter_agent = Agent(
 - "fold"と"check"の場合: amountは0
 - "call"の場合: コールに必要な正確な金額
 - "raise"の場合: レイズ後の合計金額
+- "bet"の場合: ベット金額
 - "all_in"の場合: 残りチップ全額
 - 必ず有効なJSONのみを出力（前後に説明文を付けない）
 ''',

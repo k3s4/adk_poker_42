@@ -24,7 +24,7 @@ def analyze_bet_situation(pot_size: int, to_call: int) -> Dict[str, Any]:
         threat_level = "EXTREME" # PotOver-bet or all-in
     elif bet_percentage >= 75:
         threat_level = "HIGH"
-    elif bet_percentage >= 40:
+    elif bet_percentage >= 30:
         threat_level = "MEDIUM"
 
     return {
