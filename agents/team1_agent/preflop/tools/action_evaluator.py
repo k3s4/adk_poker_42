@@ -14,6 +14,7 @@ def evaluate_preflop_action(
     to_call: int = 0,
     blind_size: int = 20,
     hand_classification: Optional[Dict[str, Any]] = None,
+    **kwargs
 ) -> Dict[str, Any]:
     """
     プリフロップアクションの評価（ハンドレンジに基づく）

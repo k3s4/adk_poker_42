@@ -24,15 +24,27 @@ HAND_RANKS = {
 }
 
 def _parse_card(card_str):
-    """'As' -> ('A', 's')"""
+    """'K♣' -> ('K', 'c') or 'As' -> ('A', 's')"""
+    # Unicode記号とアルファベット記号の変換マップ
+    suit_map = {
+        '♠': 's', '♥': 'h', '♦': 'd', '♣': 'c',
+        's': 's', 'h': 'h', 'd': 'd', 'c': 'c'
+    }
+    
     rank_str = card_str[:-1]
     suit_str = card_str[-1]
     rank = rank_str.upper()
-    suit = suit_str.lower()
+    
+    # スート記号を正規化
+    if suit_str in suit_map:
+        suit = suit_map[suit_str]
+    else:
+        suit = suit_str.lower()
+    
     if rank == '10':
         rank = 'T'
     if rank not in RANKS or suit not in SUITS:
-        raise ValueError(f"Invalid card: {card_str}")
+        raise ValueError(f"Invalid card: {card_str} (rank='{rank}', suit='{suit}')")
     return rank, suit
 
 def _get_hand_rank_and_kickers(hand):
@@ -129,11 +141,24 @@ def _calculate_strength_score(hand_name, hand_details, hole_cards, community_car
 
     # --- One Pair: 40-79 (highly contextual) --- 
     elif hand_name == "ONE_PAIR":
-        max_community_rank = max([RANK_MAP[c[0]] for c in community_cards])
+        # コミュニティカードの最高ランクを正しく計算（エラーハンドリング付き）
+        try:
+            # community_cardsは既にパース済みのタプルなので、直接rankを取得
+            community_ranks = [RANK_MAP[c[0]] if isinstance(c, tuple) else RANK_MAP[_parse_card(c)[0]] for c in community_cards]
+            max_community_rank = max(community_ranks)
+        except (ValueError, KeyError):
+            # パースエラーの場合はデフォルト値を使用
+            max_community_rank = 0
         kicker_rank = kickers[0] if kickers else 0
 
         # Case 1: Overpair (pocket pair > top card on board)
-        is_pocket_pair = hole_cards[0][0] == hole_cards[1][0]
+        try:
+            # hole_cardsがパース前の文字列の場合に対応
+            hole_rank1 = _parse_card(hole_cards[0])[0] if isinstance(hole_cards[0], str) else hole_cards[0][0]
+            hole_rank2 = _parse_card(hole_cards[1])[0] if isinstance(hole_cards[1], str) else hole_cards[1][0]
+            is_pocket_pair = hole_rank1 == hole_rank2
+        except (ValueError, IndexError):
+            is_pocket_pair = False
         if is_pocket_pair and pair_rank > max_community_rank:
             base_score = 70 + (pair_rank / 12 * 9) # 70-79
         # Case 2: Top Pair (pair matches top card on board)
