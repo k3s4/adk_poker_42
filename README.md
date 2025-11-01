@@ -114,8 +114,6 @@ uv run python main.py
   # 単一チーム対戦
   uv run python main.py --cli --agent-only --agents "team1_agent:4"
 
-  # 1on1 (beginner_agent vs team1_agent) hands=50
-  uv run python main.py --cli --agent-only --agents "beginner_agent:1,team1_agent:1" --max-hands 50
   ```
 
   **📌 エージェント専用モードの特徴:**
