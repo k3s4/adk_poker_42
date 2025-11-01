@@ -113,7 +113,6 @@ uv run python main.py
   
   # 単一チーム対戦
   uv run python main.py --cli --agent-only --agents "team1_agent:4"
-
   ```
 
   **📌 エージェント専用モードの特徴:**
