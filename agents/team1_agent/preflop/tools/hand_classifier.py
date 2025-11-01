@@ -17,18 +17,29 @@ def _convert_to_hand_notation(hole_cards: List[str]) -> str:
         標準形式の手表記（例: "AKo", "AKs", "AA"）
     """
     card1_str, card2_str = hole_cards
-    
-    # ランクを抽出（最初の文字）
-    rank1 = card1_str[0].upper()
-    rank2 = card2_str[0].upper()
-    
-    # スーツを抽出（最後の文字）
+
+    # 前後の空白を除去
+    card1_str = card1_str.strip()
+    card2_str = card2_str.strip()
+
+    # ランクを抽出（末尾のスート記号を除いた全体）
+    # 例: "10♣" -> "10", "K♠" -> "K"
+    rank1_raw = card1_str[:-1].upper()
+    rank2_raw = card2_str[:-1].upper()
+
+    # '10' を 'T' に正規化（'Td' などの表記も受け入れ）
+    rank1 = "T" if rank1_raw == "10" else rank1_raw
+    rank2 = "T" if rank2_raw == "10" else rank2_raw
+
+    # スーツを抽出（最後の文字: unicode/英字どちらでも比較は等価性のみで十分）
     suit1 = card1_str[-1]
     suit2 = card2_str[-1]
-    
-    # ポーカーランク強度マップ
-    rank_strength = {"A": 14, "K": 13, "Q": 12, "J": 11, "T": 10,
-                     "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9}
+
+    # ポーカーランク強度マップ（'T' を正しく扱う）
+    rank_strength = {
+        "A": 14, "K": 13, "Q": 12, "J": 11, "T": 10,
+        "9": 9, "8": 8, "7": 7, "6": 6, "5": 5, "4": 4, "3": 3, "2": 2,
+    }
     
     # ホールカードを標準形式に変換
     # 例: ["A♥", "K♠"] → "AKo", ["A♥", "K♥"] → "AKs", ["A♥", "A♠"] → "AA"
